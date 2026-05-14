@@ -3,7 +3,6 @@ __pycache__/
 .idea/
 *.pyc
 
-# duze pliki - odtwarzalne, patrz README
 data/
 model.joblib
 hand_landmarker.task
