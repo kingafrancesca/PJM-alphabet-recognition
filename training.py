@@ -27,7 +27,7 @@ def main():
 
     df = df.drop_duplicates(subset=LM_COLUMNS).reset_index(drop=True)
 
-    # surowe landmarki -> 21 punktow na wiersz -> znormalizowane cechy (jak w runtime)
+    # surowe landmarki -> 21 punktow na wiersz -> znormalizowane cechy
     points = df[LM_COLUMNS].values.reshape(-1, 21, 3)
     X = [features_from_points(p) for p in points]
     y = df["label"].values
