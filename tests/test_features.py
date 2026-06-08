@@ -1,23 +1,27 @@
-"""sprawdza czy VECTOR_PAIRS ma poprawna kolejnosc - porownuje surowe wektory z kolumnami 0_point_vec_* w CSV"""
+"""sprawdza kolejnosc VECTOR_PAIRS - surowe wektory musza sie zgadzac z kolumnami
+0_point_vec_* w CSV. wymaga datasetu w data/ (pomijane, gdy go nie ma)"""
+
 from pathlib import Path
 
-import pandas as pd
+import pytest
 
 from features import VECTOR_PAIRS
 
-CSV = Path(__file__).parent / "data" / "polish sign language landmarks data.csv"
+CSV = Path(__file__).parent.parent / "data" / "polish sign language landmarks data.csv"
+
+pytestmark = pytest.mark.skipif(not CSV.exists(), reason="brak datasetu w data/")
 
 
-def main():
-    df = pd.read_csv(CSV, sep=";")
-    row = df.iloc[0]
+def test_vector_pairs_match_csv_columns():
+    pd = pytest.importorskip("pandas")
+    row = pd.read_csv(CSV, sep=";").iloc[0]
 
     points = [
         [row[f"0_point_lm_{i}_x"], row[f"0_point_lm_{i}_y"], row[f"0_point_lm_{i}_z"]]
         for i in range(21)
     ]
 
-    # surowe wektory (przed normalizacja) musza sie zgadzac z 0_point_vec_* w CSV
+    # surowe wektory (przed normalizacja) liczone z VECTOR_PAIRS
     vectors = []
     for a, b in VECTOR_PAIRS:
         vectors.extend([
@@ -26,23 +30,9 @@ def main():
             points[b][2] - points[a][2],
         ])
 
-    vec_columns = [c for c in df.columns if c.startswith("0_point_vec_")]
+    vec_columns = [c for c in row.index if c.startswith("0_point_vec_")]
     from_csv = [row[c] for c in vec_columns]
 
-    print(f"liczba wektorow wyliczonych: {len(vectors)}")
-    print(f"liczba wektorow w CSV:       {len(from_csv)}")
-
+    assert len(vectors) == len(from_csv)
     max_diff = max(abs(a - b) for a, b in zip(vectors, from_csv))
-    print(f"max roznica:                {max_diff:.2e}")
-
-    if max_diff < 1e-6:
-        print("OK - kolejnosc VECTOR_PAIRS zgadza sie z CSV")
-    else:
-        print("ROZJAZD - sprawdz kolejnosc VECTOR_PAIRS")
-        for i, (a, b) in enumerate(zip(vectors, from_csv)):
-            if abs(a - b) > 1e-6:
-                print(f"  indeks {i} ({vec_columns[i]}): wyliczono {a:.6f}, w CSV {b:.6f}")
-
-
-if __name__ == "__main__":
-    main()
+    assert max_diff < 1e-6

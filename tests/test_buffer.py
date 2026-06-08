@@ -1,40 +1,44 @@
+"""Buffer: dominujaca litera z ostatnich N klatek (stabilizacja predykcji)"""
+
 from buffer import Buffer
 
 
-def main():
+def test_incomplete_buffer_returns_none():
     b = Buffer(size=10, dominance_threshold=0.7)
-
-    # mniej niz pelny bufor -> None
     for _ in range(5):
         b.add("A")
-    print(f"po 5x A (bufor niepelny): {b.letter()}")
+    assert b.letter() is None
 
-    # pelny bufor, 100% A -> "A"
-    for _ in range(5):
-        b.add("A")
-    print(f"po 10x A: {b.letter()}")
 
-    # mieszanka 50/50 -> None, brak dominacji 70%
-    b2 = Buffer(size=10, dominance_threshold=0.7)
-    for letter in "ABABABABAB":
-        b2.add(letter)
-    print(f"po ABABABABAB: {b2.letter()}")
-
-    # 7 z 10 -> dominacja
-    b3 = Buffer(size=10, dominance_threshold=0.7)
-    for letter in "AAAAAAABBB":
-        b3.add(letter)
-    print(f"po AAAAAAABBB: {b3.letter()}")
-
-    # przejscie z A na B - bufor sie przesuwa (deque)
-    b4 = Buffer(size=10, dominance_threshold=0.7)
+def test_full_unanimous_buffer_returns_letter():
+    b = Buffer(size=10, dominance_threshold=0.7)
     for _ in range(10):
-        b4.add("A")
-    print(f"po 10x A: {b4.letter()}")
+        b.add("A")
+    assert b.letter() == "A"
+
+
+def test_no_dominant_letter_returns_none():
+    # 5/10 = 50% < prog 70%
+    b = Buffer(size=10, dominance_threshold=0.7)
+    for letter in "ABABABABAB":
+        b.add(letter)
+    assert b.letter() is None
+
+
+def test_exactly_at_threshold_returns_letter():
+    # 7/10 = 70% == prog
+    b = Buffer(size=10, dominance_threshold=0.7)
+    for letter in "AAAAAAABBB":
+        b.add(letter)
+    assert b.letter() == "A"
+
+
+def test_deque_slides_with_new_letters():
+    # 10x A, potem 8x B -> w buforze AABBBBBBBB (8 B) -> B
+    b = Buffer(size=10, dominance_threshold=0.7)
+    for _ in range(10):
+        b.add("A")
+    assert b.letter() == "A"
     for _ in range(8):
-        b4.add("B")
-    print(f"+ 8x B (w buforze AABBBBBBBB): {b4.letter()}")
-
-
-if __name__ == "__main__":
-    main()
+        b.add("B")
+    assert b.letter() == "B"

@@ -6,3 +6,8 @@ __pycache__/
 data/
 model.joblib
 hand_landmarker.task
+
+# smieci Windows / Office
+desktop.ini
+~$*
+*.docx

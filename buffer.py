@@ -11,6 +11,10 @@ class Buffer:
     def add(self, letter):
         self.buffer.append(letter)
 
+    def clear(self):
+        """brak dloni w kadrze - czyscimy od razu, zeby litera nie wisiala po zabraniu reki"""
+        self.buffer.clear()
+
     def letter(self):
         """litera dominujaca w buforze, albo None jak zadna nie przekracza progu"""
         if len(self.buffer) < self.buffer.maxlen:

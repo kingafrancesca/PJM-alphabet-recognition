@@ -9,19 +9,29 @@ from sklearn.model_selection import train_test_split
 from features import features_from_points
 
 CSV = Path(__file__).parent / "data" / "polish sign language landmarks data.csv"
+PERSONAL_CSV = Path(__file__).parent / "data" / "personal_samples.csv"  # probki z collect.py
 MODEL_OUT = Path(__file__).parent / "model.joblib"
 
 LM_COLUMNS = [f"0_point_lm_{i}_{axis}" for i in range(21) for axis in ("x", "y", "z")]
 
-# litery dynamiczne - wymagaja ruchu, statyczny klasyfikator ich nie obsluzy
-DYNAMIC = {"j", "ch", "cz", "rz", "sz"}
+# litery dynamiczne - wymagaja ruchu, statyczny klasyfikator ich nie obsluzy.
+# sz ma wlasny, charakterystyczny ksztalt (plaska dlon, maly palec do kamery) -
+# dostaje wlasna klase zamiast byc udawane jako s+ruch
+DYNAMIC = {"j", "ch", "cz", "rz"}
 # diakrytyki zlaczamy z litera bazowa - roznica jest w ruchu, nie w samej pozie
 TO_BASE = {"a+": "a", "c+": "c", "e+": "e", "l+": "l", "n+": "n",
            "o+": "o", "s+": "s", "z+": "z", "z-": "z"}
 
 
 def main():
-    df = pd.read_csv(CSV, sep=";")
+    df = pd.read_csv(CSV, sep=";")[["label"] + LM_COLUMNS]
+
+    # wlasne probki (collect.py) - personalizacja pod konkretna dlon, niweluje domain shift
+    if PERSONAL_CSV.exists():
+        personal = pd.read_csv(PERSONAL_CSV, sep=";")[["label"] + LM_COLUMNS]
+        print(f"dolaczam {len(personal)} wlasnych probek z {PERSONAL_CSV.name}")
+        df = pd.concat([df, personal], ignore_index=True)
+
     df = df[~df["label"].isin(DYNAMIC)]
     df["label"] = df["label"].replace(TO_BASE)
 
