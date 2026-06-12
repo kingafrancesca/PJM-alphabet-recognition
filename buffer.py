@@ -1,9 +1,7 @@
 from collections import Counter, deque
 
-
+# stabilizuje predykcje z kolejnych klatek
 class Buffer:
-    """stabilizuje predykcje z kolejnych klatek - mowi, jaka litera jest naprawde pokazywana"""
-
     def __init__(self, size=10, dominance_threshold=0.7):
         self.buffer = deque(maxlen=size)
         self.threshold = dominance_threshold
@@ -12,11 +10,11 @@ class Buffer:
         self.buffer.append(letter)
 
     def clear(self):
-        """brak dloni w kadrze - czyscimy od razu, zeby litera nie wisiala po zabraniu reki"""
+        # czyszczenie buffera, gdy dloni nie ma w kadrze
         self.buffer.clear()
 
     def letter(self):
-        """litera dominujaca w buforze, albo None jak zadna nie przekracza progu"""
+        # litera dominujaca w buforze
         if len(self.buffer) < self.buffer.maxlen:
             return None
         counts = Counter(self.buffer)

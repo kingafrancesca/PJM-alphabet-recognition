@@ -7,7 +7,6 @@ VECTOR_PAIRS = [
     (19, 20), (6, 7), (15, 16), (2, 3), (11, 12), (7, 8),
 ]
 
-
 def normalize(points):
     """przesuwa uklad do nadgarstka i skaluje dlugoscia dloni (lm 0 -> lm 9),
     zeby cechy nie zalezaly od pozycji ani odleglosci dloni od kamery"""

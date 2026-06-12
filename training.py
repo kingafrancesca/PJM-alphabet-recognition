@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
@@ -14,9 +13,7 @@ MODEL_OUT = Path(__file__).parent / "model.joblib"
 
 LM_COLUMNS = [f"0_point_lm_{i}_{axis}" for i in range(21) for axis in ("x", "y", "z")]
 
-# litery dynamiczne - wymagaja ruchu, statyczny klasyfikator ich nie obsluzy.
-# sz ma wlasny, charakterystyczny ksztalt (plaska dlon, maly palec do kamery) -
-# dostaje wlasna klase zamiast byc udawane jako s+ruch
+# litery dynamiczne - wymagaja ruchu, statyczny klasyfikator ich nie obsluzy
 DYNAMIC = {"j", "ch", "cz", "rz"}
 # diakrytyki zlaczamy z litera bazowa - roznica jest w ruchu, nie w samej pozie
 TO_BASE = {"a+": "a", "c+": "c", "e+": "e", "l+": "l", "n+": "n",
@@ -26,7 +23,7 @@ TO_BASE = {"a+": "a", "c+": "c", "e+": "e", "l+": "l", "n+": "n",
 def main():
     df = pd.read_csv(CSV, sep=";")[["label"] + LM_COLUMNS]
 
-    # wlasne probki (collect.py) - personalizacja pod konkretna dlon, niweluje domain shift
+    # wlasne probki - personalizacja pod konkretna dlon
     if PERSONAL_CSV.exists():
         personal = pd.read_csv(PERSONAL_CSV, sep=";")[["label"] + LM_COLUMNS]
         print(f"dolaczam {len(personal)} wlasnych probek z {PERSONAL_CSV.name}")
@@ -37,7 +34,7 @@ def main():
 
     df = df.drop_duplicates(subset=LM_COLUMNS).reset_index(drop=True)
 
-    # surowe landmarki -> 21 punktow na wiersz -> znormalizowane cechy
+    # 21 punktow na wiersz, znormalizowane cechy
     points = df[LM_COLUMNS].values.reshape(-1, 21, 3)
     X = [features_from_points(p) for p in points]
     y = df["label"].values
