@@ -119,6 +119,6 @@ threaded speech queue (TTS is stubbed, so the tests run silently).
 
 ## Dataset
 
-Trained on the [Polish Sign Language landmarks dataset](https://www.kaggle.com/datasets/kacperjarosik1/polish-sign-language-google-landmarks-csv-data) from Kaggle.
+Trained on the [Polish Sign Language landmarks dataset](https://www.kaggle.com/datasets/kacperjarosik1/polish-sign-language-google-landmarks-csv-data) from Kaggle and personally collected samples.
 
 Built by Kinga Kinowska.
