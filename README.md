@@ -16,22 +16,22 @@ motion-based heuristic to handle diacritics and digraphs, with text-to-speech ou
 
 The pipeline is split into three stages:
 
-**Syntax** — MediaPipe `HandLandmarker` extracts 21 hand landmarks from each frame.
+**Syntax** - MediaPipe `HandLandmarker` extracts 21 hand landmarks from each frame.
 
-**Semantics** — the landmarks are normalized relative to the wrist and hand size,
+**Semantics** - the landmarks are normalized relative to the wrist and hand size,
 then a Random Forest classifies them into one of 22 base letters. Normalizing the
 features makes recognition independent of where the hand is in the frame and how
 far it is from the camera.
 
-**Pragmatics** — a motion heuristic looks at how the hand moved over the last few
+**Pragmatics** - a motion heuristic looks at how the hand moved over the last few
 frames. The base letter plus the motion description decides the final character
 (for example `a` plus a downward motion becomes `ą`). The result is shown on screen
 and sent to a text-to-speech engine running on a separate thread.
 
 ## Requirements
 
-- **Python 3.10** — MediaPipe does not support newer versions
-- Windows — the text-to-speech and font handling are Windows-specific
+- **Python 3.10** - MediaPipe does not support newer versions
+- Windows - the text-to-speech and font handling are Windows-specific
 - Packages: `opencv-python`, `mediapipe`, `scikit-learn`, `pandas`, `numpy`,
   `joblib`, `pyttsx3`, `Pillow`, `pywin32`
 
@@ -55,9 +55,9 @@ python camera.py
 
 Controls in the camera window:
 
-- `q` — quit
-- `f` — toggle fullscreen
-- `d` — print a snapshot (top-5 letter probabilities + motion numbers) to the console,
+- `q` - quit
+- `f` - toggle fullscreen
+- `d` - print a snapshot (top-5 letter probabilities + motion numbers) to the console,
   used for calibrating the motion thresholds
 
 ### Personalizing the model to your own hand
@@ -83,7 +83,7 @@ python training.py
 
 Random Forest (300 trees) on 126 normalized features per frame.
 
-- **Accuracy: 97.3%** on a held-out 20% test split (2856 samples, 23 classes), after
+- **Accuracy: 98.2%** on a held-out 20% test split (2856 samples, 23 classes), after
   personalization. The base Kaggle-only model scored 91.7% but failed live on an unseen
   hand; adding the user's own samples (`collect.py`) fixed the domain shift.
 - Previously weak letters recovered: `t` 0.62→0.96, `d` 0.75→0.96, `s` 0.60→0.92.
@@ -100,7 +100,7 @@ differs between gestures. They were tuned from the `d`-key snapshots and `[debug
 console logs on real gestures: the resting "noise" level turned out to be ~0.1–0.15
 and real gestures 0.3–1.9, so the original 0.16 thresholds were too low and caused
 flicker between base letters and diacritics. Some letters are split by motion
-**direction** (e.g. `ch` = down, `cz` = sideways — same handshape, base `h`).
+**direction** (e.g. `ch` = down, `cz` = sideways - same handshape, base `h`).
 
 `Z`/`Ź`/`Ż` remain the weakest case: they differ by the number of motion reversals,
 but drawing a "Z" in the air inherently produces reversals, and the sliding 15-frame
@@ -115,7 +115,7 @@ pytest
 ```
 
 Covers the motion description, the rule engine, the prediction/frame buffers, and the
-threaded speech queue (TTS is stubbed, so the tests run silently).
+threaded speech queue.
 
 ## Dataset
 
