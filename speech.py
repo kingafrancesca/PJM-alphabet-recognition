@@ -1,24 +1,17 @@
 import threading
-import time
 from queue import Queue, Full
-
 import pyttsx3
 
 try:
-    import pythoncom  # z pywin32 - SAPI5 potrzebuje COM zainicjowanego w watku
+    import pythoncom
 except ImportError:
     pythoncom = None
 
-
+# syntezator mowy w osobnym watku, aby nie blokowac petli wideo
 class Speech:
-    """syntezator mowy w osobnym watku - nie blokuje petli wideo"""
-
-    def __init__(self, rate=170, delay=2.0):
-        # limit kolejki - gdy mowa nie nadaza, pomijamy zaleglosci zamiast je pietrzyc
+    def __init__(self, rate=170):
         self.queue = Queue(maxsize=3)
         self.last = None
-        self.last_time = 0.0
-        self.delay = delay
         self.rate = rate
         thread = threading.Thread(target=self._loop, daemon=True)
         thread.start()
@@ -29,7 +22,6 @@ class Speech:
         while True:
             text = self.queue.get()
             print(f"[mowa] czytam: {text}")
-            # init na kazda litere - inaczej runAndWait zatyka silnik po pierwszym razie
             engine = pyttsx3.init()
             engine.setProperty("rate", self.rate)
             for voice in engine.getProperty("voices"):
@@ -43,17 +35,13 @@ class Speech:
             print(f"[mowa] skonczone: {text}")
 
     def say(self, letter):
-        # ta sama litera trzymana w kadrze - czytamy tylko raz, az sie zmieni albo reset()
         if letter == self.last:
             return
         self.last = letter
-        self.last_time = time.time()
         try:
             self.queue.put_nowait(letter)
         except Full:
-            pass  # mowa zostala w tyle - pomijamy, zeby nie czytac dawno nieaktualnych liter
+            pass
 
     def reset(self):
-        """dlon zeszla z kadru / predykcja niestabilna - pozwalamy przeczytac te sama litere
-        jeszcze raz, gdy pokazesz ja ponownie"""
         self.last = None
